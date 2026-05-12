@@ -6,7 +6,7 @@ set -euo pipefail
 LOCAL_ROOT="/Users/leannmlindsey/WORK/CLAUDE_DPOTROPISEARCH/claude_copy/DpoTropiSearch/benchmark_external/paml_run"
 DELTA_USER="llindsey1"
 DELTA_HOST="dt-login.delta.ncsa.illinois.edu"
-DELTA_ROOT="/u/${DELTA_USER}/llindsey/PHI_TSP/ciPHer-comparisons/paml"
+DELTA_ROOT="/projects/bfzj/${DELTA_USER}/PHI_TSP/ciPHer-comparisons/paml"
 
 ssh "${DELTA_USER}@${DELTA_HOST}" "mkdir -p ${DELTA_ROOT}/train_inputs"
 

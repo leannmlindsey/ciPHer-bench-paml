@@ -1,3 +1,8 @@
+# Local environment configuration (machine-specific paths)
+*.env
+!config/*.env.template
+!config/*.env
+
 # Large data — derive on demand, never commit
 proteomes/
 train_inputs/strain_AAs/

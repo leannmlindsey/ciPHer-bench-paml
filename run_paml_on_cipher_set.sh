@@ -1,46 +1,63 @@
 #!/usr/bin/env bash
 # Drive PAML / GenoPHI inference on one cipher OOD K. pneumoniae validation set.
 #
-# Prerequisites (all should be present after the Delta training run lands):
-#   kp_train_output_delta/strain/clusters.tsv
-#   kp_train_output_delta/strain/features/feature_table.csv
-#   kp_train_output_delta/strain/features/selected_features.csv
-#   kp_train_output_delta/phage/features/feature_table.csv
-#   kp_train_output_delta/tmp/strain/mmseqs_db   (the cluster representative DB)
-#   kp_train_output_delta/tmp/phage/mmseqs_db
-#   kp_train_output_delta/modeling_results/cutoff_10/  (trained CatBoost dir)
+# Paths come from paml.env — source it first:
+#   cp config/paml.env.template paml.env        # or _delta / _biowulf variant
+#   pico paml.env  ; source paml.env
+#
+# Required env vars (see paml.env):
+#   PAML_TRAINED_MODEL   trained model dir from the Delta training run
+#   CIPHER_VAL_GENOMES   parent dir of cipher's per-dataset validation_genomes/
+#   PAML_CONDA_ENV       conda env name (default: genophi)
+#
+# Prerequisites under $PAML_TRAINED_MODEL:
+#   strain/clusters.tsv
+#   strain/features/feature_table.csv
+#   strain/features/selected_features.csv
+#   phage/features/feature_table.csv
+#   tmp/strain/mmseqs_db
+#   tmp/phage/mmseqs_db
+#   modeling_results/cutoff_10/  (trained CatBoost dir)
 #
 # Usage:
-#   ./run_paml_on_cipher_set.sh DATASET BAC_FASTA_DIR PHAGE_FASTA_DIR
+#   source paml.env
+#   ./run_paml_on_cipher_set.sh DATASET
 # Example:
-#   ./run_paml_on_cipher_set.sh CHEN \
-#       /Users/leannmlindsey/WORK/cipher_data/validation_genomes/CHEN/host_fastas_flat \
-#       /Users/leannmlindsey/WORK/cipher_data/validation_genomes/CHEN/phages/per_phage_fastas
+#   ./run_paml_on_cipher_set.sh CHEN
+#   ./run_paml_on_cipher_set.sh PBIP
+# Per-dataset bacteria/phage FASTAs are resolved as:
+#   $CIPHER_VAL_GENOMES/$DATASET/bacteria/ and $CIPHER_VAL_GENOMES/$DATASET/phages/
 
 set -euo pipefail
 
-if [ "$#" -lt 3 ]; then
-    echo "Usage: $0 DATASET BAC_FASTA_DIR PHAGE_FASTA_DIR" >&2
+: "${PAML_TRAINED_MODEL:?source paml.env first}"
+: "${CIPHER_VAL_GENOMES:?source paml.env first}"
+PAML_CONDA_ENV="${PAML_CONDA_ENV:-genophi}"
+
+if [ "$#" -lt 1 ]; then
+    echo "Usage: $0 DATASET  [BAC_FASTA_DIR  PHAGE_FASTA_DIR]" >&2
+    echo "  DATASET: CHEN | UCSD | PBIP | Townsend | Jing | Wang | GORODNICHIV" >&2
+    echo "  BAC/PHAGE_FASTA_DIR: override if not at \$CIPHER_VAL_GENOMES/\$DATASET/{bacteria,phages}/" >&2
     exit 2
 fi
 
 DATASET="$1"
-BAC_DIR="$2"
-PHAGE_DIR="$3"
+BAC_DIR="${2:-${CIPHER_VAL_GENOMES}/${DATASET}/bacteria}"
+PHAGE_DIR="${3:-${CIPHER_VAL_GENOMES}/${DATASET}/phages}"
 
 PAML_ROOT="$(cd "$(dirname "$0")" && pwd)"
-TRAINED="${PAML_ROOT}/kp_train_output_delta"
+TRAINED="${PAML_TRAINED_MODEL}"
 OUT="${PAML_ROOT}/cipher_predictions/${DATASET}"
 mkdir -p "${OUT}"
 
 if [ ! -d "${TRAINED}" ]; then
     echo "ERROR: trained PAML model not found at ${TRAINED}" >&2
-    echo "       run 04_transfer_results_back.sh after Delta finishes." >&2
+    echo "       (PAML_TRAINED_MODEL env var; run delta/04_transfer_results_back.sh after Delta finishes)" >&2
     exit 1
 fi
 
 eval "$(conda shell.bash hook)"
-conda activate genophi
+conda activate "${PAML_CONDA_ENV}"
 
 # -- 1. Proteomes for the new bacteria + phages -----------------------------
 echo "[1/4] Predicting proteomes for ${DATASET}"

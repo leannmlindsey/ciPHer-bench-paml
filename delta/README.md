@@ -8,7 +8,7 @@ to lift-and-shift.
 ## Pieces
 
 1. `01_transfer_to_delta.sh` — one-time rsync of inputs + scripts up
-   to `/u/llindsey1/llindsey/PHI_TSP/ciPHer-comparisons/paml/`
+   to `/projects/bfzj/llindsey1/PHI_TSP/ciPHer-comparisons/paml/`
 2. `02_setup_env_on_delta.sh` — run on Delta login node once;
    builds the `genophi` conda env (genophi pip + mmseqs2 bioconda)
 3. `03_train_paml.sbatch` — the one-shot SLURM job:
