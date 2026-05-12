@@ -1,0 +1,21 @@
+# Large data — derive on demand, never commit
+proteomes/
+train_inputs/strain_AAs/
+train_inputs/phage_AAs/
+kp_train_output/
+kp_train_output_delta/
+*.faa
+*.fasta
+*.fa
+*.fna
+
+# Logs + caches
+*.log
+__pycache__/
+.DS_Store
+.ipynb_checkpoints/
+
+# Local-only working dirs
+GenoPHI/
+cipher_predictions/
+tmp_*/
