@@ -52,14 +52,23 @@ unzip -q ciPHer-bench-paml-data.zip
 cd ..
 ```
 
-## 4. Configure env + install conda + submit
+## 4. Configure env + build conda env + submit
 
 ```bash
 cp config/paml_delta.env paml.env
 source paml.env
 
-# One-time conda env build (~5 min):
-bash delta/02_setup_env_on_delta.sh
+# (First time only — install Miniforge if conda isn't already available)
+# Skip if `which conda` shows a working install.
+cd /tmp
+wget -q https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh
+bash Miniforge3-Linux-$(uname -m).sh -b -p /projects/bfzj/llindsey1/miniforge3
+source /projects/bfzj/llindsey1/miniforge3/etc/profile.d/conda.sh
+cd -
+
+# Build the conda env from environment.yml (~5 min)
+conda env create -f environment.yml
+conda activate genophi
 
 # Submit the training job:
 sbatch --account="${ACCOUNT}" --partition="${PARTITION}" \

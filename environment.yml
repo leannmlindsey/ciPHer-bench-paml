@@ -1,0 +1,23 @@
+# Conda env for PAML / GenoPHI on Delta.
+#
+# Build:
+#   conda env create -f environment.yml
+# Update:
+#   conda env update -f environment.yml --prune
+# Activate:
+#   conda activate genophi
+
+name: genophi
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.10
+  - mmseqs2
+  - aria2
+  - pip
+  - pip:
+      - genophi
+      - pyrodigal
+      - pyrodigal-gv
+      - biopython

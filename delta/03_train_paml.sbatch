@@ -50,9 +50,16 @@ fi
 mkdir -p "${REPO_ROOT}/logs"
 cd "${REPO_ROOT}"
 
-# --- Conda activation (matches cipher's pattern) -------------------------
+# --- Conda activation ----------------------------------------------------
+if [[ -z "${CONDA_EXE:-}" ]] && command -v conda >/dev/null 2>&1; then
+    CONDA_EXE="$(command -v conda)"
+fi
+if [[ -z "${CONDA_EXE:-}" ]]; then
+    echo "ERROR: conda not found. Install Miniforge first (see SETUP.md)." >&2
+    exit 1
+fi
 # shellcheck disable=SC1091
-source "$(conda info --base)/etc/profile.d/conda.sh"
+source "$(dirname "${CONDA_EXE}")/../etc/profile.d/conda.sh"
 conda activate "${PAML_CONDA_ENV}"
 
 echo "[env] hostname    = $(hostname)"

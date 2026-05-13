@@ -43,8 +43,16 @@ echo "============================================================"
 # --- Conda activation -------------------------------------------------------
 echo
 echo "[1/5] Conda activation"
+# Find conda: $CONDA_EXE if already set, otherwise the user's miniconda/miniforge
+if [[ -z "${CONDA_EXE:-}" ]] && command -v conda >/dev/null 2>&1; then
+    CONDA_EXE="$(command -v conda)"
+fi
+if [[ -z "${CONDA_EXE:-}" ]]; then
+    echo "  FAIL: conda not found. Install Miniforge first (see SETUP.md)." >&2
+    exit 1
+fi
 # shellcheck disable=SC1091
-source "$(conda info --base)/etc/profile.d/conda.sh"
+source "$(dirname "${CONDA_EXE}")/../etc/profile.d/conda.sh"
 conda activate "${PAML_CONDA_ENV}"
 echo "  active env: ${CONDA_DEFAULT_ENV}"
 echo "  python:     $(python --version 2>&1)"
